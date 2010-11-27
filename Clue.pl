@@ -1,18 +1,26 @@
 % Game setup
 :- dynamic player_active/1.
+:- dynamic card_in_possession/2.
+:- dynamic card_observed/2.
+:- dynamic player_controlled/1.
 
+setup_players([]).
 setup_players([Player|Players]) :- 
     % Make sure to remove all previous active players before calling this function
     player(Player),
     assert(player_active(Player)),
     setup_players(Players).
 
-setup_players([]).
+setup_cards([]).
+setup_cards([Card|Cards]) :-
+    card(Card),
+    player_controlled(Hero),
+    assert(card_in_possession(Hero, Card)),
+    assert(card_observed(Hero, Card)),
+    setup_cards(Cards).
 
 % Finding the next turn
 
-% This is the case where there are inactive players between
-% CurrentPlayer and NextPlayer
 next_player(CurrentPlayer, NextPlayer) :- 
     % Get the first relatively left player
     relatively_left(CurrentPlayer, NextPlayer),
@@ -20,9 +28,7 @@ next_player(CurrentPlayer, NextPlayer) :-
     player_active(NextPlayer),
     % No more
     !.
- 
     
-
 % Player Ordering
 left_of(missScarlet, colonelMustard).
 left_of(colonelMustard, mrsWhite).
