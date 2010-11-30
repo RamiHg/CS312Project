@@ -1,5 +1,6 @@
 :- dynamic active_player/1.
 :- dynamic current_player/1.
+:- dynamic controlling_player/1.
 :- dynamic room/1.
 :- dynamic weapon/1.
 
@@ -13,13 +14,14 @@
     Game Setup
 */
 
-init_clue(Type, Players) :-
+init_clue(Type, Players, ControllingPlayer) :-
     % Wipe everything first
     wipe,
 	init_weapons(Type),
 	init_rooms(Type),
 	init_players(Players),
 	init_first_player,
+    assert(controlling_player(ControllingPlayer)),
     assert(last_play_id(0)).
 
 init_players([]).
@@ -42,7 +44,11 @@ wipe :-
 	retractall(weapon(_)),
 	retractall(room(_)),
 	retractall(active_player(_)),
-	retractall(current_player(_)).
+	retractall(current_player(_)),
+    retractall(controlling_player(_)),
+    retractall(recorded_suggestion(_,_,_)),
+    retractall(recorded_to_player_response(_,_,_)),
+    retractall(recorded_to_opponent_response(_,_)).
     
 /*
     Game Cycles
@@ -88,6 +94,51 @@ new_play_id(X) :-
     retract(last_play_id(_)),
     assert(last_play_id(X)).
 
+/*
+    User Interface
+*/
+
+main :-
+    write('Clue Assistant 1.0\n'),
+    ask_school(School),
+    ask_players(Players),
+    ask_controller(ControllingPlayer),
+    init_clue(School, Players, ControllingPlayer),
+    write('Game Initialized.\n').
+    
+ask_school(School) :-
+    write('School of Thought [oldSchool, newSchool]: '),
+    read(School).
+    
+ask_players(Players) :-
+    write('Type the participating players in the following format\n'),
+    write('  [player0, player1, etc..]: '),
+    read(Players).
+    
+ask_controller(ControllingPlayer) :-
+    write('Who are you playing as?: '),
+    read(ControllingPlayer).
+    
+main_menu(0) :-
+    print_main_menu,
+    read(Option),
+    main_menu(Option).
+    
+main_menu(1) :-
+    new_move(0).
+
+print_main_menu :-
+    write('[1] Record a new suggestion\n').
+    
+new_move(0) :-
+    print_new_move,
+    read(Option),
+    new_move(Option).
+    
+print_new_move :-
+    write('[1] Record a suggestion you made\n'),
+    write('[2] Record a suggestion an opponent made\n').
+    
 
 /*
     Game Elements and Rules
