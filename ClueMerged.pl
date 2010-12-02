@@ -108,7 +108,6 @@ new_play_id(X) :-
 */
 
 main :-
-    wipe,
     write('Clue Assistant 1.0\n'),
     ask_school(School),
     ask_players(Players),
@@ -167,14 +166,12 @@ print_main_menu :-
 new_move(0) :-
     print_new_move,
     read(Option),
-    new_move(Option).
+    suggestion_menu(Option).
    
     
 print_new_move :-
     write('[1] Record a suggestion you made\n'),
-    write('[2] Record a suggestion an opponent made\n'),
-    read(Option),
-    suggestion_menu(Option).
+    write('[2] Record a suggestion an opponent made\n').
    
 % A player suggestion   
 suggestion_menu(1) :-
